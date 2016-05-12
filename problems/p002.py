@@ -38,7 +38,7 @@ def without_summation(args):
     #   = 2 * (F[3n] + F[3*(n-1)] + ... + F[3]) + 1
     # Therefore, F[3n + 2] // 2 is the sum of all even fibonacci numbers up to
     # 3n.
-    
+
     fibonacci_numbers = mt.fibonacci_numbers()
     double_sum_so_far = 0
     while True:

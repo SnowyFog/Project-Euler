@@ -48,7 +48,7 @@ def get_result_str(problem, solver):
         return OUTCOME_STRS['MEMORY_ERROR']
     except Exception:    # tbd: timeout
         return OUTCOME_STRS['FAILED']
-    
+
     if problem.solution is not None and result == problem.solution:
         return OUTCOME_STRS['CORRECT']
     elif isinstance(result, VALID_RESULT_TYPES):
@@ -59,19 +59,19 @@ def get_result_str(problem, solver):
 def print_results(problem, solvers):
     if problem.solution is not None:
         print("Solution: {}".format(problem.solution))
-    
+
     for solver in solvers:
         print_outcome_line(solver, get_result_str(problem, solver))
-    
+
 
 def print_performances(problem, solvers):
     timers = [timingtools.SingleArgTimer(solver) for solver in solvers]
-    
+
     for test_index, test in enumerate(problem.performance_tests):
         print("Performance test {}".format(test_index))
-        
+
         new_timers = []
-        
+
         for timer in timers:
             try:
                 timing = timer.min_run_time(test, TARGET_TIME, TIMING_TIMEOUT,
@@ -86,18 +86,18 @@ def print_performances(problem, solvers):
                 format_values = dict(time=timing*1000,
                                      decimals=TIMING_MS_DECIMALS)
                 timing_str = "{time:.{decimals}f}ms".format(**format_values)
-                
+
                 new_timers.append(timer)
-            
+
             print_outcome_line(timer.func, timing_str)
-        
+
         timers = new_timers
 
 
 def print_solvers(problem, solvers):
     for solver in solvers:
         print(solver.__name__)
-    
+
     if problem.main is not None:
         print("Main: {}".format(problem.main.__name__))
 
@@ -111,7 +111,7 @@ def get_solvers_to_use(problem, solver_strs=None, use_main=False):
             return [problem.main]
         else:
             return problem.solvers
-    
+
     name_to_solver = {solver.__name__: solver for solver in problem.solvers}
     solvers = []
     for solver_str in solver_strs:
@@ -122,28 +122,28 @@ def get_solvers_to_use(problem, solver_strs=None, use_main=False):
             continue
         if new_solver not in solvers:
             solvers.append(new_solver)
-    
+
     return solvers
 
 def print_action(problem_no, action, solver_strs=None, use_main=False):
     if not 1 <= problem_no <= LAST_PROBLEM:
         print("Problem {} does not exist here.".format(problem_no))
         return
-    
+
     try:
         problem = problems.get_problem(problem_no)
     except ImportError:
         print("Import of problem {} failed.".format(problem_no))
         return
-    
+
     if problem.problem_no != problem_no:
         format_str = "Error: module {desired} contains problem {actual}."
         format_values = dict(desired=problem_no, actual=problem.problem_no)
         print(format_str.format(**format_values))
         return
-    
+
     print("Problem {}".format(problem_no))
-    
+
     solvers_to_use = get_solvers_to_use(problem, solver_strs, use_main)
     action(problem, solvers_to_use)
 
@@ -161,17 +161,17 @@ def get_default_action():
 def get_action(name_to_action, action_str):
     if action_str is None:
         return get_default_action()
-    
+
     return pythontools.get_abbreviated(name_to_action, action_str.lower())
 
 
 def parse_args(action_choices):
     """Parse arguments and return them in a namespace object."""
-    
+
     parser = argparse.ArgumentParser(
       description="Solve Project Euler problems.",
     )
-    
+
     parser.add_argument(
       'problem_no',
       nargs='?',
@@ -198,28 +198,28 @@ def parse_args(action_choices):
       dest='use_main',
       help="use main solver only",
     )
-    
+
     return parser.parse_args()
 
 
 def main():
     name_to_action = get_name_to_action()
-    
+
     args = parse_args(action_choices=name_to_action)
-    
+
     if args.solver_strs and args.use_main:
         print("You can't use the 'main' flag if you specify solvers.")
         return
     if args.solver_strs and args.problem_no is None:
         print("You can only specify solvers if you also specify a problem.")
         return
-    
+
     if args.problem_no is None:
         for problem_no in range(1, LAST_PROBLEM+1):
             print_action(problem_no, get_default_action(), None, args.use_main)
             print()
         return
-    
+
     action = get_action(name_to_action, args.action_str)
     if action is None:
         format_str = "{input!r} is not a valid action. (choose from {choices})"

@@ -17,6 +17,6 @@ problem = Problem(
 def main(args):
     factors_counter = mt.counter_union(mt.prime_factor_counter(n)
                                        for n in range(1, args.max+1))
-    
+
     factors = (f**count for f, count in factors_counter.items())
     return mt.product(factors)

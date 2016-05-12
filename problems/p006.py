@@ -15,5 +15,5 @@ problem = Problem(
 def main(args):
     sum_of_squares = sum(n**2 for n in range(args.max+1))
     square_of_sum = mt.arithmetic_series(args.max+1)**2
-    
+
     return square_of_sum - sum_of_squares

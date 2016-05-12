@@ -24,18 +24,18 @@ def counter_union(iterable):
 
 def arithmetic_series(a, b=NotGiven, step=NotGiven):
     """Return the sum of all integers in the specified range.
-    
-    The specified range is equivalent to the range recieved from a call to 
+
+    The specified range is equivalent to the range recieved from a call to
     range() with the same arguments.
-    
+
     >>> arithmetic_series(8) == sum(range(8))
     True
     >>> arithmetic_series(-4, 10, 3) == sum(range(-4, 10, 3))
     True
     """
-    
+
     seq = range(*if_given(a, b, step))
-    
+
     if __debug__:
         if seq.start > seq.stop:
             raise ValueError("the start of the range must not be greater than "
@@ -46,13 +46,13 @@ def arithmetic_series(a, b=NotGiven, step=NotGiven):
     # fails if the length of the range is too large to fit into a C long.
     if seq.start == seq.stop:
         return 0
-    
+
     # For the same reason, we can't use len(seq) to determine the number of
     # elements.
     first = seq[0]
     last = seq[-1]
     num_elements = (last - first) // seq.step + 1
-    
+
     # The average element of the sequence is equal to the average of the first
     # and the last element.
     return num_elements * (first + last) // 2
@@ -60,19 +60,19 @@ def arithmetic_series(a, b=NotGiven, step=NotGiven):
 
 def item_by_index(iterable, index):
     """Return the item of <iterable> with the given index.
-    
+
     Can be used even if <iterable> does not support indexing.  <index> can be
     any integer.  The indexing rules are the same as with built-in indexable
     types.
-    
+
     Raise an IndexError if <iterable> does not yield enough items."""
-    
+
     if __debug__:
         checkinput.must_be_int(index)
-    
+
     if index < 0:
         return _item_by_negative_index(iterable, index)
-    
+
     iterable_slice = itertools.islice(iterable, index, None)
     try:
         return next(iterable_slice)
@@ -102,13 +102,13 @@ def primes():
 
 def prime_factors(n):
     """Generate the prime factors of <n> in ascending order."""
-    
+
     if __debug__:
         checkinput.must_be_positive_int(n)
-    
+
     if n == 1:
         return
-    
+
     # Extract prime factors from <n>, dividing <n> by each factor when the
     # factor is found.
     possible_odd_factors = iter(_possible_odd_primes())
@@ -164,9 +164,9 @@ def fibonacci_numbers():
 
 def is_decimal_palindrome(n):
     """Return True if <n> is a palindrome in base ten."""
-    
+
     if __debug__:
         checkinput.must_be_natural_number(n)
-    
+
     n_str = str(n)
     return n_str == n_str[::-1]
