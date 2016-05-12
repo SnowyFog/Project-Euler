@@ -35,10 +35,10 @@ OUTCOME_STRS = dict(
 def print_outcome_line(solver, outcome_str):
     """Print a single line indicating the outcome of an action on a solver."""
     format_str = "{name:.<{name_len}}..{outcome_str:.>{outcome_len}}"
-    format_values = dict(name=solver.func_name, name_len=SOLVER_NAME_MAX_LEN,
+    format_values = dict(name=solver.__name__, name_len=SOLVER_NAME_MAX_LEN,
                          outcome_str=outcome_str,
                          outcome_len=OUTCOME_STR_MAX_LEN)
-    print format_str.format(**format_values)
+    print(format_str.format(**format_values))
 
 
 def get_result_str(problem, solver):
@@ -58,7 +58,7 @@ def get_result_str(problem, solver):
 
 def print_results(problem, solvers):
     if problem.solution is not None:
-        print "Solution: {}".format(problem.solution)
+        print("Solution: {}".format(problem.solution))
     
     for solver in solvers:
         print_outcome_line(solver, get_result_str(problem, solver))
@@ -68,7 +68,7 @@ def print_performances(problem, solvers):
     timers = [timingtools.SingleArgTimer(solver) for solver in solvers]
     
     for test_index, test in enumerate(problem.performance_tests):
-        print "Performance test {}".format(test_index)
+        print("Performance test {}".format(test_index))
         
         new_timers = []
         
@@ -96,10 +96,10 @@ def print_performances(problem, solvers):
 
 def print_solvers(problem, solvers):
     for solver in solvers:
-        print solver.func_name
+        print(solver.__name__)
     
     if problem.main is not None:
-        print "Main: {}".format(problem.main.func_name)
+        print("Main: {}".format(problem.main.__name__))
 
 
 def get_solver(name_to_solver, solver_str):
@@ -112,13 +112,13 @@ def get_solvers_to_use(problem, solver_strs=None, use_main=False):
         else:
             return problem.solvers
     
-    name_to_solver = {solver.func_name: solver for solver in problem.solvers}
+    name_to_solver = {solver.__name__: solver for solver in problem.solvers}
     solvers = []
     for solver_str in solver_strs:
         new_solver = get_solver(name_to_solver, solver_str)
         if new_solver is None:
             format_str = "{!r} is not a valid solver for this problem."    # c'mon, printing in a get function? tbd. hint: exceptions
-            print format_str.format(solver_str)
+            print(format_str.format(solver_str))
             continue
         if new_solver not in solvers:
             solvers.append(new_solver)
@@ -127,22 +127,22 @@ def get_solvers_to_use(problem, solver_strs=None, use_main=False):
 
 def print_action(problem_no, action, solver_strs=None, use_main=False):
     if not 1 <= problem_no <= LAST_PROBLEM:
-        print "Problem {} does not exist here.".format(problem_no)
+        print("Problem {} does not exist here.".format(problem_no))
         return
     
     try:
         problem = problems.get_problem(problem_no)
     except ImportError:
-        print "Import of problem {} failed.".format(problem_no)
+        print("Import of problem {} failed.".format(problem_no))
         return
     
     if problem.problem_no != problem_no:
         format_str = "Error: module {desired} contains problem {actual}."
         format_values = dict(desired=problem_no, actual=problem.problem_no)
-        print format_str.format(**format_values)
+        print(format_str.format(**format_values))
         return
     
-    print "Problem {}".format(problem_no)
+    print("Problem {}".format(problem_no))
     
     solvers_to_use = get_solvers_to_use(problem, solver_strs, use_main)
     action(problem, solvers_to_use)
@@ -208,16 +208,16 @@ def main():
     args = parse_args(action_choices=name_to_action)
     
     if args.solver_strs and args.use_main:
-        print "You can't use the 'main' flag if you specify solvers."
+        print("You can't use the 'main' flag if you specify solvers.")
         return
     if args.solver_strs and args.problem_no is None:
-        print "You can only specify solvers if you also specify a problem."
+        print("You can only specify solvers if you also specify a problem.")
         return
     
     if args.problem_no is None:
-        for problem_no in xrange(1, LAST_PROBLEM+1):
+        for problem_no in range(1, LAST_PROBLEM+1):
             print_action(problem_no, get_default_action(), None, args.use_main)
-            print
+            print()
         return
     
     action = get_action(name_to_action, args.action_str)
@@ -225,7 +225,7 @@ def main():
         format_str = "{input!r} is not a valid action. (choose from {choices})"
         format_values = dict(input=args.action_str,
                              choices=', '.join(name_to_action))
-        print format_str.format(**format_values)
+        print(format_str.format(**format_values))
         return
     print_action(args.problem_no, action, args.solver_strs, args.use_main)
 

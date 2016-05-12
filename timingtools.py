@@ -8,7 +8,7 @@ import timeit
 class Timeout(Exception):
     """A timeout has occurred."""
 
-class CalleeError(StandardError):
+class CalleeError(Exception):
     """An error has occurred when the callee was being executed."""
 
 
