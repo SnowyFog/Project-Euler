@@ -3,7 +3,7 @@ import mathtools as mt
 
 
 problem = Problem(
-  problem_no=6,
+  problem_id=6,
   actual_args_dict=dict(max=100),
   solution=None,
   test_dicts=[

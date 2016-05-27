@@ -4,11 +4,11 @@ import pytools
 class Problem:
     """Project Euler problem with parameters, solution and solvers."""
 
-    def __init__(self, problem_no, actual_args_dict, *, solution=None,
+    def __init__(self, problem_id, actual_args_dict, *, solution=None,
                  domain=None, test_dicts=[], **kwargs):
         super().__init__(**kwargs)
 
-        self.problem_no = problem_no
+        self.problem_id = problem_id
         self.get_args = pytools.defaults_tuple('ProblemArgs', actual_args_dict)
         self.actual_args = self.get_args()
         self.solution = solution

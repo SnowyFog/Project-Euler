@@ -7,7 +7,7 @@ import pytools
 import timingtools
 
 
-LAST_PROBLEM = 8
+LAST_PROBLEM_ID = 8
 
 VALID_RESULT_TYPES = (
   numbers.Integral,
@@ -119,24 +119,24 @@ def get_solvers_to_use(problem, solver_strs=None):
 
     return solvers
 
-def print_action(problem_no, action, solver_strs=None):
-    if not 1 <= problem_no <= LAST_PROBLEM:
-        print("Problem {} does not exist here.".format(problem_no))
+def print_action(problem_id, action, solver_strs=None):
+    if not 1 <= problem_id <= LAST_PROBLEM_ID:
+        print("Problem {} does not exist here.".format(problem_id))
         return
 
     try:
-        problem = problems.get_problem(problem_no)
+        problem = problems.get_problem(problem_id)
     except ImportError:
-        print("Import of problem {} failed.".format(problem_no))
+        print("Import of problem {} failed.".format(problem_id))
         return
 
-    if problem.problem_no != problem_no:
+    if problem.problem_id != problem_id:
         format_str = "Error: module {desired} contains problem {actual}."
-        format_values = dict(desired=problem_no, actual=problem.problem_no)
+        format_values = dict(desired=problem_id, actual=problem.problem_id)
         print(format_str.format(**format_values))
         return
 
-    print("Problem {}".format(problem_no))
+    print("Problem {}".format(problem_id))
 
     solvers_to_use = get_solvers_to_use(problem, solver_strs)
     action(problem, solvers_to_use)
@@ -158,7 +158,7 @@ def parse_args():
         description="Examine solver functions for Project Euler problems.")
 
     parser.add_argument(
-        'problem_no', nargs='?', type=int, metavar='problem',
+        'problem_id', nargs='?', type=int, metavar='problem',
         help="number of the problem to be examined")
     action_choices_str = ', '.join(actions_by_name)
     parser.add_argument(
@@ -183,13 +183,13 @@ def main():
 
     args = parse_args()
 
-    if args.solver_strs and args.problem_no is None:
+    if args.solver_strs and args.problem_id is None:
         print("You can only specify solvers if you also specify a problem.")
         return
 
-    if args.problem_no is None:
-        for problem_no in range(1, LAST_PROBLEM+1):
-            print_action(problem_no, get_default_action(), None)
+    if args.problem_id is None:
+        for problem_id in range(1, LAST_PROBLEM_ID+1):
+            print_action(problem_id, get_default_action(), None)
             print()
         return
 
@@ -200,6 +200,6 @@ def main():
                              choices=', '.join(actions_by_name))
         print(format_str.format(**format_values))
         return
-    print_action(args.problem_no, action, args.solver_strs)
+    print_action(args.problem_id, action, args.solver_strs)
 
 main()

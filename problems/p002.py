@@ -5,7 +5,7 @@ import mathtools as mt
 
 
 problem = Problem(
-  problem_no=2,
+  problem_id=2,
   actual_args_dict=dict(max=4*10**6),
   solution=4613732,
   test_dicts=[

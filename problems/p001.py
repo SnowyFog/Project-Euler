@@ -4,7 +4,7 @@ import typetools as tt
 
 
 problem = Problem(
-  problem_no=1,
+  problem_id=1,
 
   actual_args_dict=dict(
     divisors=frozenset({3, 5}),

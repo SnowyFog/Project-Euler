@@ -1,11 +1,11 @@
 import importlib
 
 
-PROBLEM_NO_NUM_DIGITS = 3
+PROBLEM_ID_NUM_DIGITS = 3
 
 
-def get_problem(problem_no):
-    relative_module_name = _get_relative_name(problem_no)
+def get_problem(problem_id):
+    relative_module_name = _get_relative_name(problem_id)
     try:
         module = importlib.import_module(relative_module_name, __name__)
     except ImportError:
@@ -14,5 +14,5 @@ def get_problem(problem_no):
         raise ImportError
     return module.problem
 
-def _get_relative_name(problem_no):
-    return '.p' + str(problem_no).zfill(PROBLEM_NO_NUM_DIGITS)
+def _get_relative_name(problem_id):
+    return '.p' + str(problem_id).zfill(PROBLEM_ID_NUM_DIGITS)
