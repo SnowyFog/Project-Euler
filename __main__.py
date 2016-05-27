@@ -98,19 +98,13 @@ def print_solvers(problem, solvers):
     for solver in solvers:
         print(solver.__name__)
 
-    if problem.main is not None:
-        print("Main: {}".format(problem.main.__name__))
-
 
 def get_solver(name_to_solver, solver_str):
     return pytools.get_abbreviated(name_to_solver, solver_str.lower())
 
-def get_solvers_to_use(problem, solver_strs=None, use_main=False):
+def get_solvers_to_use(problem, solver_strs=None):
     if solver_strs is None:
-        if use_main:
-            return [problem.main]
-        else:
-            return problem.solvers
+        return problem.solvers
 
     name_to_solver = {solver.__name__: solver for solver in problem.solvers}
     solvers = []
@@ -125,7 +119,7 @@ def get_solvers_to_use(problem, solver_strs=None, use_main=False):
 
     return solvers
 
-def print_action(problem_no, action, solver_strs=None, use_main=False):
+def print_action(problem_no, action, solver_strs=None):
     if not 1 <= problem_no <= LAST_PROBLEM:
         print("Problem {} does not exist here.".format(problem_no))
         return
@@ -144,7 +138,7 @@ def print_action(problem_no, action, solver_strs=None, use_main=False):
 
     print("Problem {}".format(problem_no))
 
-    solvers_to_use = get_solvers_to_use(problem, solver_strs, use_main)
+    solvers_to_use = get_solvers_to_use(problem, solver_strs)
     action(problem, solvers_to_use)
 
 def get_default_action():
@@ -173,9 +167,6 @@ def parse_args():
     parser.add_argument(
         '-s', '--solvers', nargs='+', metavar='SOLVERS', dest='solver_strs',
         help="desired problem solver functions")
-    parser.add_argument(
-        '-m', '--main', action='store_true', dest='use_main',
-        help="use main solver only")
 
     return parser.parse_args()
 
@@ -192,16 +183,13 @@ def main():
 
     args = parse_args()
 
-    if args.solver_strs and args.use_main:
-        print("You can't use the 'main' flag if you specify solvers.")
-        return
     if args.solver_strs and args.problem_no is None:
         print("You can only specify solvers if you also specify a problem.")
         return
 
     if args.problem_no is None:
         for problem_no in range(1, LAST_PROBLEM+1):
-            print_action(problem_no, get_default_action(), None, args.use_main)
+            print_action(problem_no, get_default_action(), None)
             print()
         return
 
@@ -212,6 +200,6 @@ def main():
                              choices=', '.join(actions_by_name))
         print(format_str.format(**format_values))
         return
-    print_action(args.problem_no, action, args.solver_strs, args.use_main)
+    print_action(args.problem_no, action, args.solver_strs)
 
 main()
