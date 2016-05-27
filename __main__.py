@@ -147,65 +147,50 @@ def print_action(problem_no, action, solver_strs=None, use_main=False):
     solvers_to_use = get_solvers_to_use(problem, solver_strs, use_main)
     action(problem, solvers_to_use)
 
-
-def get_name_to_action():
-    return collections.OrderedDict([
-      ('solve', print_results),
-      ('list_solvers', print_solvers),
-      ('time_solvers', print_performances),
-    ])
-
 def get_default_action():
     return print_results
 
-def get_action(name_to_action, action_str):
+def get_action(action_str):
     if action_str is None:
         return get_default_action()
 
-    return pythontools.get_abbreviated(name_to_action, action_str.lower())
+    return pytools.get_abbreviated(actions_by_name, action_str.lower())
 
 
-def parse_args(action_choices):
-    """Parse arguments and return them in a namespace object."""
+def parse_args():
+    """Parse command-line arguments and return them in a Namespace object."""
 
     parser = argparse.ArgumentParser(
-      description="Solve Project Euler problems.",
-    )
+        description="Examine solver functions for Project Euler problems.")
 
     parser.add_argument(
-      'problem_no',
-      nargs='?',
-      type=int,
-      metavar='problem',
-      help="the number of the requested problem",
-    )
+        'problem_no', nargs='?', type=int, metavar='problem',
+        help="number of the problem to be examined")
+    action_choices_str = ', '.join(actions_by_name)
     parser.add_argument(
-      'action_str',
-      nargs='?',
-      metavar='action',
-      help="desired action (choose from {})".format(', '.join(action_choices)),
-    )
+        'action_str', nargs='?', metavar='action',
+        help="desired action (choose from {})".format(action_choices_str))
     parser.add_argument(
-      '-s', '--solvers',
-      nargs='+',
-      metavar='SOLVERS',
-      dest='solver_strs',
-      help="desired problem solver functions",
-    )
+        '-s', '--solvers', nargs='+', metavar='SOLVERS', dest='solver_strs',
+        help="desired problem solver functions")
     parser.add_argument(
-      '-m', '--main',
-      action='store_true',
-      dest='use_main',
-      help="use main solver only",
-    )
+        '-m', '--main', action='store_true', dest='use_main',
+        help="use main solver only")
 
     return parser.parse_args()
 
 
-def main():
-    name_to_action = get_name_to_action()
+actions_by_name = collections.OrderedDict([  # tbd: add testing
+    ('solve', print_results),
+    ('list_solvers', print_solvers),
+    ('time_solvers', print_performances),
+])
 
-    args = parse_args(action_choices=name_to_action)
+
+def main():
+    """Let the user examine solvers via command-line arguments."""
+
+    args = parse_args()
 
     if args.solver_strs and args.use_main:
         print("You can't use the 'main' flag if you specify solvers.")
@@ -220,11 +205,11 @@ def main():
             print()
         return
 
-    action = get_action(name_to_action, args.action_str)
+    action = get_action(args.action_str)
     if action is None:
         format_str = "{input!r} is not a valid action. (choose from {choices})"
         format_values = dict(input=args.action_str,
-                             choices=', '.join(name_to_action))
+                             choices=', '.join(actions_by_name))
         print(format_str.format(**format_values))
         return
     print_action(args.problem_no, action, args.solver_strs, args.use_main)
