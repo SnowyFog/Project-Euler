@@ -141,41 +141,37 @@ def print_action(problem_id, action, solver_strs=None):
     solvers_to_use = get_solvers_to_use(problem, solver_strs)
     action(problem, solvers_to_use)
 
-def get_default_action():
-    return print_results
-
-def get_action(action_str):
-    if action_str is None:
-        return get_default_action()
-
-    return pytools.get_abbreviated(actions_by_name, action_str.lower())
-
 
 def parse_args():
     """Parse command-line arguments and return them in a Namespace object."""
+
+    actions_by_name = collections.OrderedDict([
+        ('solve', print_results),
+        ('list', print_solvers),
+        # ('test', print_test_results),  # tbd
+        ('time', print_performances),
+    ])
+    default_action_name = 'solve'
 
     parser = argparse.ArgumentParser(
         description="Examine solver functions for Project Euler problems.")
 
     parser.add_argument(
+        'action', nargs='?', choices=actions_by_name,
+        default=default_action_name,
+        help="desired action (default: {})".format(default_action_name))
+    parser.add_argument(
         'problem_id', nargs='?', type=int, metavar='problem',
-        help="number of the problem to be examined")
-    action_choices_str = ', '.join(actions_by_name)
+        help="ID of the problem to be examined (default: all problems)")
     parser.add_argument(
-        'action_str', nargs='?', metavar='action',
-        help="desired action (choose from {})".format(action_choices_str))
-    parser.add_argument(
-        '-s', '--solvers', nargs='+', metavar='SOLVERS', dest='solver_strs',
-        help="desired problem solver functions")
+        'solver_strs', nargs='*', metavar='solver',
+        help="desired solver function (default: all solvers)")
 
-    return parser.parse_args()
-
-
-actions_by_name = collections.OrderedDict([  # tbd: add testing
-    ('solve', print_results),
-    ('list_solvers', print_solvers),
-    ('time_solvers', print_performances),
-])
+    args = parser.parse_args()
+    args.action = actions_by_name[args.action]
+    if not args.solver_strs:
+        args.solver_strs = None
+    return args
 
 
 def main():
@@ -183,23 +179,13 @@ def main():
 
     args = parse_args()
 
-    if args.solver_strs and args.problem_id is None:
-        print("You can only specify solvers if you also specify a problem.")
-        return
-
     if args.problem_id is None:
-        for problem_id in range(1, LAST_PROBLEM_ID+1):
-            print_action(problem_id, get_default_action(), None)
-            print()
-        return
+        problem_ids = range(1, LAST_PROBLEM_ID+1)
+    else:
+        problem_ids = [args.problem_id]
 
-    action = get_action(args.action_str)
-    if action is None:
-        format_str = "{input!r} is not a valid action. (choose from {choices})"
-        format_values = dict(input=args.action_str,
-                             choices=', '.join(actions_by_name))
-        print(format_str.format(**format_values))
-        return
-    print_action(args.problem_id, action, args.solver_strs)
+    for problem_id in problem_ids:
+        print_action(problem_id, args.action, args.solver_strs)
+        print()
 
 main()
