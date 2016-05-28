@@ -1,6 +1,7 @@
 import argparse
 import collections
 import numbers
+import sys
 
 import problems
 import pytools
@@ -33,10 +34,6 @@ OUTCOME_STRS = dict(
 
 
 def print_action(action, problem_id, solver_strs=None):
-    if not 1 <= problem_id <= LAST_PROBLEM_ID:
-        print("Problem {} does not exist here.".format(problem_id))
-        return
-
     try:
         problem = problems.get_problem(problem_id)
     except ImportError:
@@ -185,6 +182,9 @@ def main():
     if args.problem_id is None:
         problem_ids = range(1, LAST_PROBLEM_ID+1)
     else:
+        if not 1 <= args.problem_id <= LAST_PROBLEM_ID:
+            sys.exit("error: problem ID must be between 1 and {}"
+                         .format(LAST_PROBLEM_ID))
         problem_ids = [args.problem_id]
 
     for problem_id in problem_ids:
