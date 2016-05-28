@@ -32,6 +32,52 @@ OUTCOME_STRS = dict(
 )
 
 
+def print_action(action, problem_id, solver_strs=None):
+    if not 1 <= problem_id <= LAST_PROBLEM_ID:
+        print("Problem {} does not exist here.".format(problem_id))
+        return
+
+    try:
+        problem = problems.get_problem(problem_id)
+    except ImportError:
+        print("Import of problem {} failed.".format(problem_id))
+        return
+
+    if problem.problem_id != problem_id:
+        format_str = "Error: module {desired} contains problem {actual}."
+        format_values = dict(desired=problem_id, actual=problem.problem_id)
+        print(format_str.format(**format_values))
+        return
+
+    print("Problem {}".format(problem_id))
+
+    solvers_to_use = get_solvers_to_use(problem, solver_strs)
+    action(problem, solvers_to_use)
+
+    print()
+
+
+def get_solvers_to_use(problem, solver_strs=None):
+    if solver_strs is None:
+        return problem.solvers
+
+    name_to_solver = {solver.__name__: solver for solver in problem.solvers}
+    solvers = []
+    for solver_str in solver_strs:
+        new_solver = get_solver(name_to_solver, solver_str)
+        if new_solver is None:
+            format_str = "{!r} is not a valid solver for this problem."    # c'mon, printing in a get function? tbd. hint: exceptions
+            print(format_str.format(solver_str))
+            continue
+        if new_solver not in solvers:
+            solvers.append(new_solver)
+
+    return solvers
+
+def get_solver(name_to_solver, solver_str):
+    return pytools.get_abbreviated(name_to_solver, solver_str.lower())
+
+
 def print_outcome_line(solver, outcome_str):
     """Print a single line indicating the outcome of an action on a solver."""
     format_str = "{name:.<{name_len}}..{outcome_str:.>{outcome_len}}"
@@ -40,6 +86,13 @@ def print_outcome_line(solver, outcome_str):
                          outcome_len=OUTCOME_STR_MAX_LEN)
     print(format_str.format(**format_values))
 
+
+def print_results(problem, solvers):
+    if problem.solution is not None:
+        print("Solution: {}".format(problem.solution))
+
+    for solver in solvers:
+        print_outcome_line(solver, get_result_str(problem, solver))
 
 def get_result_str(problem, solver):
     try:
@@ -56,12 +109,10 @@ def get_result_str(problem, solver):
     else:
         return repr(result)
 
-def print_results(problem, solvers):
-    if problem.solution is not None:
-        print("Solution: {}".format(problem.solution))
 
+def print_solvers(problem, solvers):
     for solver in solvers:
-        print_outcome_line(solver, get_result_str(problem, solver))
+        print(solver.__name__)
 
 
 def print_performances(problem, solvers):
@@ -92,54 +143,6 @@ def print_performances(problem, solvers):
             print_outcome_line(timer.func, timing_str)
 
         timers = new_timers
-
-
-def print_solvers(problem, solvers):
-    for solver in solvers:
-        print(solver.__name__)
-
-
-def get_solver(name_to_solver, solver_str):
-    return pytools.get_abbreviated(name_to_solver, solver_str.lower())
-
-def get_solvers_to_use(problem, solver_strs=None):
-    if solver_strs is None:
-        return problem.solvers
-
-    name_to_solver = {solver.__name__: solver for solver in problem.solvers}
-    solvers = []
-    for solver_str in solver_strs:
-        new_solver = get_solver(name_to_solver, solver_str)
-        if new_solver is None:
-            format_str = "{!r} is not a valid solver for this problem."    # c'mon, printing in a get function? tbd. hint: exceptions
-            print(format_str.format(solver_str))
-            continue
-        if new_solver not in solvers:
-            solvers.append(new_solver)
-
-    return solvers
-
-def print_action(problem_id, action, solver_strs=None):
-    if not 1 <= problem_id <= LAST_PROBLEM_ID:
-        print("Problem {} does not exist here.".format(problem_id))
-        return
-
-    try:
-        problem = problems.get_problem(problem_id)
-    except ImportError:
-        print("Import of problem {} failed.".format(problem_id))
-        return
-
-    if problem.problem_id != problem_id:
-        format_str = "Error: module {desired} contains problem {actual}."
-        format_values = dict(desired=problem_id, actual=problem.problem_id)
-        print(format_str.format(**format_values))
-        return
-
-    print("Problem {}".format(problem_id))
-
-    solvers_to_use = get_solvers_to_use(problem, solver_strs)
-    action(problem, solvers_to_use)
 
 
 def parse_args():
@@ -185,7 +188,6 @@ def main():
         problem_ids = [args.problem_id]
 
     for problem_id in problem_ids:
-        print_action(problem_id, args.action, args.solver_strs)
-        print()
+        print_action(args.action, problem_id, args.solver_strs)
 
 main()
