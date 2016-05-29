@@ -11,7 +11,7 @@ import timingtools
 LAST_PROBLEM_ID = 8
 
 VALID_RESULT_TYPES = (
-  numbers.Integral,
+    numbers.Integral,
 )
 
 RESULT_TIMEOUT = 10
@@ -26,32 +26,18 @@ SOLVER_NAME_MAX_LEN = 26
 OUTCOME_STR_MAX_LEN = 15
 
 OUTCOME_STRS = dict(
-  CORRECT="correct",
-  FAILED="failed",
-  TIMEOUT="timeout",
-  MEMORY_ERROR="memory error",
+    CORRECT="correct",
+    FAILED="failed",
+    TIMEOUT="timeout",
+    MEMORY_ERROR="memory error",
 )
 
 
-def print_action(action, problem_id, solver_strs=None):
-    try:
-        problem = problems.get_problem(problem_id)
-    except ImportError:
-        print("Import of problem {} failed.".format(problem_id))
-        return
-
-    if problem.problem_id != problem_id:
-        format_str = "Error: module {desired} contains problem {actual}."
-        format_values = dict(desired=problem_id, actual=problem.problem_id)
-        print(format_str.format(**format_values))
-        return
-
-    print("Problem {}".format(problem_id))
+def print_action(problem, action, solver_strs=None):
+    print("Problem {}".format(problem.problem_id))
 
     solvers_to_use = get_solvers_to_use(problem, solver_strs)
     action(problem, solvers_to_use)
-
-    print()
 
 
 def get_solvers_to_use(problem, solver_strs=None):
@@ -112,6 +98,10 @@ def print_solvers(problem, solvers):
         print(solver.__name__)
 
 
+def print_correctness_tests(problem, solvers):
+    pass  # tbd
+
+
 def print_performances(problem, solvers):
     timers = [timingtools.SingleArgTimer(solver) for solver in solvers]
 
@@ -148,7 +138,7 @@ def parse_args():
     actions_by_name = collections.OrderedDict([
         ('solve', print_results),
         ('list', print_solvers),
-        # ('test', print_test_results),  # tbd
+        ('test', print_correctness_tests),
         ('time', print_performances),
     ])
     default_action_name = 'solve'
@@ -184,10 +174,19 @@ def main():
     else:
         if not 1 <= args.problem_id <= LAST_PROBLEM_ID:
             sys.exit("error: problem ID must be between 1 and {}"
-                         .format(LAST_PROBLEM_ID))
+                     .format(LAST_PROBLEM_ID))
         problem_ids = [args.problem_id]
 
     for problem_id in problem_ids:
-        print_action(args.action, problem_id, args.solver_strs)
+        try:
+            problem = problems.get_problem(problem_id)
+        except ImportError:
+            print("Import of problem {} failed.".format(problem_id))
+        except problems.WrongProblemError:
+            print("The module for problem {} contains a wrong problem."
+                  .format(problem_id))
+        else:
+            print_action(problem, args.action, args.solver_strs)
+        print()
 
 main()
