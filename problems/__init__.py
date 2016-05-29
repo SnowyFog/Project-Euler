@@ -1,7 +1,7 @@
 import importlib
 
 
-PROBLEM_ID_NUM_DIGITS = 3
+_PROBLEM_ID_NUM_DIGITS = 3
 
 
 class WrongProblemError(Exception):
@@ -23,4 +23,4 @@ def get_problem(problem_id):
     return module.problem
 
 def _get_relative_name(problem_id):
-    return '.p' + str(problem_id).zfill(PROBLEM_ID_NUM_DIGITS)
+    return '.p' + str(problem_id).zfill(_PROBLEM_ID_NUM_DIGITS)
