@@ -4,7 +4,6 @@ import numbers
 import sys
 
 import problems
-import pytools
 import timingtools
 
 
@@ -33,32 +32,55 @@ OUTCOME_STRS = dict(
 )
 
 
-def print_action(problem, action, solver_strs=None):
-    print("Problem {}".format(problem.problem_id))
+def print_action(problem_id, action, solver_strs=None):
+    """Print the output of an action performed on a problem.
 
-    solvers_to_use = get_solvers_to_use(problem, solver_strs)
-    action(problem, solvers_to_use)
+    Import the problem with ID <problem_id> and perform <action> on it, using
+    the solvers whose names match <solver_strs>.  Print feedback to the user.
+
+    If <solver_strs> is None, all of the problem's solvers are used."""
+
+    try:
+        problem = problems.get_problem(problem_id)
+    except ImportError:
+        print("Import of problem {} failed.".format(problem_id))
+    except problems.WrongProblemError:
+        print("The module for problem {} contains a wrong problem."
+              .format(problem_id))
+    else:
+        print("# Problem", problem_id)
+        solvers, unmatched_strs = find_solvers(problem, solver_strs)
+        for unmatched_str in unmatched_strs:
+            print("There is no solver starting with {!r}."
+                  .format(unmatched_str))
+        action(problem, solvers)
+
+    print()
 
 
-def get_solvers_to_use(problem, solver_strs=None):
+def find_solvers(problem, solver_strs=None):
+    """Find solvers that match the given search strings.
+
+    Return a tuple of matching solvers and unmatched search strings.  A solver
+    matches a string if the solver's name starts with the string.  The matching
+    solvers are returned in the order in which they were first matched.
+
+    If <solver_strs> is None, all of the problem's solvers are returned."""
+
     if solver_strs is None:
-        return problem.solvers
+        return problem.solvers, []
 
-    name_to_solver = {solver.__name__: solver for solver in problem.solvers}
-    solvers = []
+    matching_solvers = collections.OrderedDict()  # used as an ordered set
+    unmatched_strs = []
     for solver_str in solver_strs:
-        new_solver = get_solver(name_to_solver, solver_str)
-        if new_solver is None:
-            format_str = "{!r} is not a valid solver for this problem."    # c'mon, printing in a get function? tbd. hint: exceptions
-            print(format_str.format(solver_str))
-            continue
-        if new_solver not in solvers:
-            solvers.append(new_solver)
+        matches = [solver for solver in problem.solvers
+                   if solver.__name__.startswith(solver_str)]
+        for match in matches:
+            matching_solvers[match] = None
+        if not matches:
+            unmatched_strs.append(solver_str)
 
-    return solvers
-
-def get_solver(name_to_solver, solver_str):
-    return pytools.get_abbreviated(name_to_solver, solver_str.lower())
+    return matching_solvers, unmatched_strs
 
 
 def print_outcome_line(solver, outcome_str):
@@ -133,7 +155,15 @@ def print_performances(problem, solvers):
 
 
 def parse_args():
-    """Parse command-line arguments and return them in a Namespace object."""
+    """Parse command-line arguments and return them in a Namespace object.
+
+    The returned namespace has the following attributes:
+     - <action>, a function that takes a problem and a list of solvers,
+       performs an action on them and prints feedback to the user.
+     - <problem_id>, the ID of the desired problem.  None means that all
+       problems should be examined.
+     - <solver_strs>, a list of strings indicating which solvers should be
+       used.  None means that all solvers should be used."""
 
     actions_by_name = collections.OrderedDict([
         ('solve', print_results),
@@ -178,15 +208,6 @@ def main():
         problem_ids = [args.problem_id]
 
     for problem_id in problem_ids:
-        try:
-            problem = problems.get_problem(problem_id)
-        except ImportError:
-            print("Import of problem {} failed.".format(problem_id))
-        except problems.WrongProblemError:
-            print("The module for problem {} contains a wrong problem."
-                  .format(problem_id))
-        else:
-            print_action(problem, args.action, args.solver_strs)
-        print()
+        print_action(problem_id, args.action, args.solver_strs)
 
 main()
