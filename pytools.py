@@ -111,11 +111,3 @@ def defaults_tuple(type_name, defaults):
 
 
 forever = itertools.repeat(None)
-
-
-def append_to(seq):
-    """Return a decorator that appends the decorated object to <seq>."""
-    def append_to_seq(x):
-        seq.append(x)
-        return x
-    return append_to_seq

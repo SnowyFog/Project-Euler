@@ -1,7 +1,7 @@
 import itertools
 
-from project_euler import Problem
 import mathtools as mt
+from problems import Problem
 
 
 problem = Problem(

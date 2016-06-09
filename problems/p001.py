@@ -1,6 +1,6 @@
-from project_euler import Problem
 import mathtools as mt
 import typetools as tt
+from problems import Problem
 
 
 problem = Problem(
