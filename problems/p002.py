@@ -5,9 +5,9 @@ from problems import Problem
 
 
 problem = Problem(
-  problem_id=2,
-  actual_args_dict=dict(max=4*10**6),
-  solution=4613732,
+    problem_id=2,
+    actual_args_dict=dict(max=4*10**6),
+    solution=4613732,
 )
 
 
@@ -15,17 +15,20 @@ problem = Problem(
 
 # A closed-form solution is hard to implement because of precision issues.
 
+
 @problem.list_as_solver
 def check_parity(args):
     fibonacci_numbers = mt.items_up_to(mt.fibonacci_numbers(), args.max+1)
     even_fibonacci_numbers = (fib for fib in fibonacci_numbers if fib % 2 == 0)
     return sum(even_fibonacci_numbers)
 
+
 @problem.list_as_solver
 def every_third(args):
     fibonacci_numbers = mt.items_up_to(mt.fibonacci_numbers(), args.max+1)
     even_fibonacci_numbers = itertools.islice(fibonacci_numbers, 0, None, 3)
     return sum(even_fibonacci_numbers)
+
 
 @problem.list_as_solver
 def without_summation(args):
@@ -42,6 +45,7 @@ def without_summation(args):
             return double_sum_so_far // 2
         next(fibonacci_numbers)
         double_sum_so_far = next(fibonacci_numbers)
+
 
 def closed_form(args):
     pass    # jeez, this is hard

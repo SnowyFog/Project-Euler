@@ -4,19 +4,16 @@ from problems import Problem
 
 
 problem = Problem(
-  problem_id=1,
-
-  actual_args_dict=dict(
-    divisors=frozenset({3, 5}),
-    stop=1000,
-  ),
-
-  domain=dict(
-    divisors=tt.SetOf(tt.positive_int),
-    stop=tt.natural_number,
-  ),
-
-  solution=233168,
+    problem_id=1,
+    actual_args_dict=dict(
+        divisors=frozenset({3, 5}),
+        stop=1000,
+    ),
+    domain=dict(
+        divisors=tt.SetOf(tt.positive_int),
+        stop=tt.natural_number,
+    ),
+    solution=233168,
 )
 
 
@@ -28,6 +25,7 @@ def iterator_based(args):
     multiples = (n for n in range(args.stop) if is_multiple(n))
     return sum(multiples)
 
+
 @problem.list_as_solver
 def add_each(args):
     total = 0
@@ -36,12 +34,14 @@ def add_each(args):
             total += n
     return total
 
+
 @problem.list_as_solver
 def set_based(args):
     multiples = set()
     for divisor in args.divisors:
         multiples.update(range(0, args.stop, divisor))
     return sum(multiples)
+
 
 @problem.list_as_solver
 def cycle_based(args):

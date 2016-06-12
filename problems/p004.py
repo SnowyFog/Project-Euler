@@ -3,10 +3,11 @@ from problems import Problem
 
 
 problem = Problem(
-  problem_id=4,
-  actual_args_dict=dict(num_digits=3),
-  solution=None,
+    problem_id=4,
+    actual_args_dict=dict(num_digits=3),
+    solution=None,
 )
+
 
 @problem.list_as_solver
 def main(args):

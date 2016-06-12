@@ -5,10 +5,11 @@ from problems import Problem
 
 
 problem = Problem(
-  problem_id=5,
-  actual_args_dict=dict(max=20),
-  solution=None,
+    problem_id=5,
+    actual_args_dict=dict(max=20),
+    solution=None,
 )
+
 
 @problem.list_as_solver
 def main(args):
