@@ -6,9 +6,6 @@ problem = Problem(
   problem_id=3,
   actual_args_dict=dict(number=600851475143),
   solution=None,
-  test_dicts=[
-    dict(),
-  ],
 )
 
 @problem.list_as_solver

@@ -99,15 +99,4 @@ class OrderedCounter(collections.Counter, collections.OrderedDict):
         return collections.OrderedDict(self)
 
 
-def defaults_tuple(type_name, defaults):
-    """Return a function that returns named tuples with default values.
-
-    Note:  Different instances of the named tuple will share items that were
-    given as default values.  Use immutable types if the items should not be
-    modified."""
-
-    DefaultsTuple = collections.namedtuple(type_name, defaults)
-    return DefaultsTuple(**defaults)._replace
-
-
 forever = itertools.repeat(None)

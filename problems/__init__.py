@@ -1,13 +1,19 @@
+"""Package containing Project Euler problems.
+
+Problem objects are located in modules in this package and should not be
+accessed directly, but rather through the function get_problem() defined in
+this package."""
+
+
+import collections
 import importlib
 import numbers
-
-import pytools
 
 
 LAST_PROBLEM_ID = 8
 
-# Must be small enough that a column of solvers isn't too wide in the output,
-# and large enough to allow descriptive solver names.
+# SOLVER_NAME_MAX_LEN must be small enough that a column of solvers isn't too
+# wide in the output, and large enough to allow descriptive solver names.
 SOLVER_NAME_MAX_LEN = 26
 
 _PROBLEM_ID_NUM_DIGITS = 3
@@ -17,19 +23,49 @@ class WrongProblemError(Exception):
     """A problem module contains a problem with the wrong ID."""
 
 
+class ProblemImportError(Exception):
+    """A problem object could not be imported from its module."""
+
+
 class Problem:
-    """Project Euler problem with parameters, solution and solvers."""
+    """Project Euler problem with arguments, solution and solvers.
 
-    def __init__(self, problem_id, actual_args_dict, *, solution=None,
-                 domain=None, test_dicts=()):
+    This is a generalized version of a Project Euler problem where the input
+    parameters can vary.
+
+    == Instance attributes ==
+
+    actual_args
+        A named tuple containing the arguments of the problem as given by
+        Project Euler.
+    domain
+        The domain of definition of the problem viewed as a mathematical
+        function.  Arguments to solvers must belong to this domain.  A value of
+        None means that the domain is not available.
+    get_args(**args)
+        A function that takes, as positional arguments, arguments for the
+        problem and returns a named tuple containing them.  If a parameter is
+        not defined, its value from `actual_args` is used.
+    problem_id
+        The problem's ID, as given by Project Euler.
+    solution
+        The problem's solution, as verified by Project Euler.  A value of None
+        means that the solution is not available.
+    solvers
+        An iterable of functions that solve a generalized version of this
+        problem.  Each solver takes the problem's arguments in the form of a
+        named tuple like `actual_args` or the ones returned by get_args()."""
+
+    def __init__(self, problem_id, actual_args_dict, *, domain=None,
+                 solution=None):
         self.problem_id = problem_id
-        self.get_args = pytools.defaults_tuple('ProblemArgs', actual_args_dict)
-        self.actual_args = self.get_args()
-        self.solution = solution
         self.domain = domain
-        self.tests = [self.get_args(**test_dict) for test_dict in test_dicts]
-
+        self.solution = solution
         self.solvers = []
+
+        Args = collections.namedtuple('ProblemArgs', actual_args_dict)
+        self.actual_args = Args(**actual_args_dict)
+        self.get_args = self.actual_args._replace
 
     def list_as_solver(self, solver):
         """Decorator to append the decorated function to the list of solvers.
@@ -46,24 +82,24 @@ class Problem:
         """Return whether the given result is of a valid type.
 
         The value None can't be a valid result because it would compare equal
-        to `self.solution` if the correct solution is not known."""
+        to `problem.solution` if the correct solution is not known."""
 
         return isinstance(result, numbers.Integral)
 
 
 def get_problem(problem_id):
-    relative_module_name = _get_relative_name(problem_id)
+    """Import a problem module and return the problem object from it."""
+
+    module_name = _get_module_name(problem_id)
     try:
-        module = importlib.import_module(relative_module_name, __name__)
-    except ImportError:
-        raise
-    except Exception:
-        raise ImportError()
+        problem = importlib.import_module(module_name).problem
+    except Exception as e:
+        raise ProblemImportError("could not import problem object") from e
 
-    if module.problem.problem_id != problem_id:
-        raise WrongProblemError()
+    if problem.problem_id != problem_id:
+        raise WrongProblemError("problem module contains wrong problem")
 
-    return module.problem
+    return problem
 
-def _get_relative_name(problem_id):
-    return '.p' + str(problem_id).zfill(_PROBLEM_ID_NUM_DIGITS)
+def _get_module_name(problem_id):
+    return 'problems.p' + str(problem_id).zfill(_PROBLEM_ID_NUM_DIGITS)

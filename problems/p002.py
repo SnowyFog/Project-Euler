@@ -8,10 +8,6 @@ problem = Problem(
   problem_id=2,
   actual_args_dict=dict(max=4*10**6),
   solution=4613732,
-  test_dicts=[
-    dict(),
-    dict(max=10**5000),
-  ],
 )
 
 

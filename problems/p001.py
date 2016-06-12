@@ -11,24 +11,12 @@ problem = Problem(
     stop=1000,
   ),
 
-  solution=233168,
-
   domain=dict(
     divisors=tt.SetOf(tt.positive_int),
     stop=tt.natural_number,
   ),
 
-  test_dicts=[
-    dict(),
-    dict(
-      divisors=frozenset({2, 3, 17, 101}),
-      stop=10**5,
-    ),
-    dict(
-      divisors=frozenset({3, 4, 14, 19, 34, 49, 101}),
-      stop=10**7,
-    ),
-  ],
+  solution=233168,
 )
 
 

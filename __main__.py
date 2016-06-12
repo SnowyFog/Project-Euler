@@ -10,8 +10,8 @@ Results are printed to stdout.
 
 An "action", within the context of this script, is a function that takes a
 problem and a list of solvers, performs some operations on them and prints
-results to stdout.  A "solver" is a function that solves a specific
-parametrized Project Euler problem."""
+results to stdout.  A "solver" is a function that solves a Project Euler
+problem."""
 
 
 import argparse
@@ -53,7 +53,7 @@ def print_action(problem_id, action, solver_strs=None):
 
     try:
         problem = problems.get_problem(problem_id)
-    except ImportError:
+    except problems.ProblemImportError:
         print("Import failed.")
     except problems.WrongProblemError:
         print("The module for problem {} contains a wrong problem."
